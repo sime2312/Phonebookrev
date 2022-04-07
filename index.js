@@ -59,9 +59,7 @@ app.get("/api/persons", (request, response) => {
   app.post("/api/persons", (request, response) => {
     const body = request.body;
     const found = person.find((item) => item.name === body.name);
-    if (found) {
-      return response.status(500).json({ error: "Name must be unique" });
-    }
+    
     if (body.name === "") {
       return response.status(500).json({ error: "Name cannot be empty!" });
     } else if (body.number === "") {
@@ -70,13 +68,19 @@ app.get("/api/persons", (request, response) => {
     body.id = (Math.random() * 1000).toFixed(0);
     person.push(body);
     return response.json(person);
-  });
-  
-  morgan.token('ob', function (request, res) { 
-    console.log("ob", request.body)
-    return `${JSON.stringify(req.body)}` })
-  
-  app.use(morgan(':method :url :status :response-time :req[header] :ob'))
+    if (found) {
+      return response.status(500).json({ error: "Name must be unique" });
+    }
+});
+morgan.token('post', function (required) { 
+  if (required.method === 'POST'){
+    return JSON.stringify(required.body)
+} else {
+    return null;
+}});
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+
 
 
   const PORT = 3002;
