@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+app.use(morgan('tiny'))
+
 
 app.use(express.json())
 
@@ -55,7 +58,7 @@ app.get("/api/persons", (request, response) => {
   });
   app.post("/api/persons", (request, response) => {
     const body = request.body;
-    const found = personalbar.find((item) => item.name === body.name);
+    const found = person.find((item) => item.name === body.name);
     if (found) {
       return response.status(500).json({ error: "Name must be unique" });
     }
@@ -68,6 +71,12 @@ app.get("/api/persons", (request, response) => {
     person.push(body);
     return response.json(person);
   });
+  
+  morgan.token('ob', function (request, res) { 
+    console.log("ob", request.body)
+    return `${JSON.stringify(req.body)}` })
+  
+  app.use(morgan(':method :url :status :response-time :req[header] :ob'))
 
 
   const PORT = 3002;
